@@ -1,3 +1,4 @@
+*.swp
 *~
 _*
 *.o
@@ -5,6 +6,7 @@ _*
 *.asm
 *.sym
 *.img
+a.out
 vectors.S
 bootblock
 entryother
