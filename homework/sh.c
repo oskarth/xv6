@@ -58,9 +58,14 @@ runcmd(struct cmd *cmd)
 
   case ' ':
     ecmd = (struct execcmd*)cmd;
+    // XXX: how big can second argument get?
+    char fullpath[100] = "/bin/";
+    strcat(fullpath, ecmd->argv[0]);
     if(ecmd->argv[0] == 0)
       exit(0);
+    // First we try current directiory, then /bin/
     execv(ecmd->argv[0], ecmd->argv);
+    execv(fullpath, ecmd->argv);
     fprintf(stderr, "exec %s failed\n", ecmd->argv[0]);
     break;
 
