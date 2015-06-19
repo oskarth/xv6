@@ -58,14 +58,15 @@ runcmd(struct cmd *cmd)
 
   case ' ':
     ecmd = (struct execcmd*)cmd;
-    // XXX: how big can second argument get?
-    char fullpath[100] = "/bin/";
-    strcat(fullpath, ecmd->argv[0]);
+    // XXX: how big can second argument get? and how can this be exploited?
+    char path1[100] = "/bin/";
+    char path2[100] = "/usr/bin/";
     if(ecmd->argv[0] == 0)
       exit(0);
-    // First we try current directiory, then /bin/
+    // First we try current directiory, then /bin/, then /usr/bin/
     execv(ecmd->argv[0], ecmd->argv);
-    execv(fullpath, ecmd->argv);
+    execv(strcat(path1, ecmd->argv[0]), ecmd->argv);
+    execv(strcat(path2, ecmd->argv[0]), ecmd->argv);
     fprintf(stderr, "exec %s failed\n", ecmd->argv[0]);
     break;
 
