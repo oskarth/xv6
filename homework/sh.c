@@ -82,8 +82,30 @@ runcmd(struct cmd *cmd)
 
   case '|':
     pcmd = (struct pipecmd*)cmd;
-    fprintf(stderr, "pipe not implemented\n");
-    // Your code here ...
+    // we create a pipe and read/write descriptors are now in p
+    if(pipe(p) < 0)
+      fprintf(stderr, "pipe error\n");
+
+    // create two child processes, one for left and one for right
+    // if we remove a random close line here, how debug?
+    if(fork() == 0) {
+      close(1);  // close STDOUT
+      dup(p[1]); // create a copy of fd p[1], using min. free fd, i.e. STDOUT
+      close(p[0]); // we close this and the one below to use in other child
+      close(p[1]);
+      runcmd(pcmd->left); // here STDOUT is bound to write-end of pipe
+    }
+    if(fork() == 0) {
+      close(0); // close STDIN
+      dup(p[0]); // as in other proc, we create a copy of read-end
+      close(p[0]);
+      close(p[1]);
+      runcmd(pcmd->right);
+    }
+    close(p[0]); // why again? aren't they closed?
+    close(p[1]);
+    wait(); // wait for left child
+    wait(); // wait for right child
     break;
   }    
   exit(0);
