@@ -102,7 +102,7 @@ runcmd(struct cmd *cmd)
       close(p[1]);
       runcmd(pcmd->right);
     }
-    close(p[0]); // why again? aren't they closed?
+    close(p[0]); // all execution in in left right and pipe, close parent fds
     close(p[1]);
     wait(); // wait for left child
     wait(); // wait for right child
