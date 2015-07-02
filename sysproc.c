@@ -7,6 +7,21 @@
 #include "mmu.h"
 #include "proc.h"
 
+
+// Copy of sys_uptime (ish)
+int
+sys_date(void)
+{
+  return 5;
+}
+
+//int
+//sys_date(struct rtcdate *r)
+//{
+//  cmostime(r);
+//  return 0;
+//}
+
 int
 sys_fork(void)
 {
