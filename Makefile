@@ -158,6 +158,7 @@ mkfs: mkfs.c fs.h
 
 UPROGS=\
 	_cat\
+	_date\
 	_echo\
 	_forktest\
 	_grep\
