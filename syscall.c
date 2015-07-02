@@ -154,12 +154,13 @@ void
 syscall(void)
 {
   int num;
+  (void)syscall_names; // Unused, for debugging
 
   num = proc->tf->eax;
   if(num > 0 && num < NELEM(syscalls) && syscalls[num]) {
     proc->tf->eax = syscalls[num]();
-    cprintf("%s -> %d\n",
-            syscall_names[num], proc->tf->eax);
+//    cprintf("%s -> %d\n",
+//            syscall_names[num], proc->tf->eax);
   } else {
     cprintf("%d %s: unknown sys call %d\n",
             proc->pid, proc->name, num);
