@@ -62,8 +62,10 @@ sys_sbrk(void)
   if(argint(0, &n) < 0)
     return -1;
   addr = proc->sz;
-  if(growproc(n) < 0)
-    return -1;
+  //cprintf("sbrk didn't growproc by %d or 0x%x at 0x%x\n", n, n, addr);
+//  if(growproc(n) < 0)
+//    return -1;
+  proc->sz += n;
   return addr;
 }
 
