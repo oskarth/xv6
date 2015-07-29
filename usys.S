@@ -8,6 +8,7 @@
     int $T_SYSCALL; \
     ret
 
+SYSCALL(alarm)
 SYSCALL(date)
 SYSCALL(fork)
 SYSCALL(exit)
