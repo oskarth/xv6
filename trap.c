@@ -65,6 +65,17 @@ trap(struct trapframe *tf)
     if(cpu->id == 0){
       acquire(&tickslock);
       ticks++;
+
+      if(proc && (tf->cs & 3) == 3){
+        proc->alarmleft--;
+        if(proc->alarmleft == 0){
+          proc->alarmleft = proc->alarmticks;
+          tf->esp -= 4;
+          *(uint*)tf->esp = tf->eip; // XXX: security flaw, need check before
+          tf->eip = (uint) proc->alarmhandler;
+        }
+      }
+
       wakeup(&ticks);
       release(&tickslock);
     }
