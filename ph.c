@@ -52,8 +52,8 @@ insert(int key, int value, struct entry **p, struct entry *n)
   *p = e;
 }
 
-static 
-void put(int key, int value)
+static void
+put(int key, int value)
 {
   int i = key % NBUCKET;
   insert(key, value, &table[i], table[i]);
