@@ -18,6 +18,7 @@ struct entry *table[NBUCKET];
 int keys[NKEYS];
 int nthread = 1;
 volatile int done;
+pthread_mutex_t lock[NBUCKET];
 
 
 double
@@ -56,7 +57,9 @@ static void
 put(int key, int value)
 {
   int i = key % NBUCKET;
+  pthread_mutex_lock(&lock[i]);
   insert(key, value, &table[i], table[i]);
+  pthread_mutex_unlock(&lock[i]);
 }
 
 static struct entry*
@@ -81,20 +84,29 @@ thread(void *xa)
   //  printf("b = %d\n", b);
   t0 = now();
   for (i = 0; i < b; i++) {
-    // printf("%d: put %d\n", n, b*n+i);
+    //printf("%ld: put %ld\n", n, b*n+i);
+    // pthread_mutex_lock(&lock);
     put(keys[b*n + i], n);
+    // pthread_mutex_unlock(&lock);
   }
   t1 = now();
   printf("%ld: put time = %f\n", n, t1-t0);
 
   // Should use pthread_barrier, but MacOS doesn't support it ...
+  // Serialization of puts and gets
   __sync_fetch_and_add(&done, 1);
   while (done < nthread) ;
 
   t0 = now();
   for (i = 0; i < NKEYS; i++) {
+    // printf("%ld: get %d\n", n, i);
+    // pthread_mutex_lock(&lock);
     struct entry *e = get(keys[i]);
-    if (e == 0) k++;
+    // pthread_mutex_unlock(&lock);
+    if (e == 0) {
+      //printf("%ld: key missing: %d\n", n, i);
+      k++; // key missing
+    }
   }
   t1 = now();
   printf("%ld: lookup time = %f\n", n, t1-t0);
@@ -109,6 +121,11 @@ main(int argc, char *argv[])
   void *value;
   long i;
   double t1, t0;
+
+  // initialize locks
+  for (i = 0; i < NBUCKET; i++) {
+    pthread_mutex_init(&lock[i], NULL);
+  }
 
   if (argc < 2) {
     fprintf(stderr, "%s: %s nthread\n", argv[0], argv[0]);
@@ -129,5 +146,6 @@ main(int argc, char *argv[])
     assert(pthread_join(tha[i], &value) == 0);
   }
   t1 = now();
+  //print();
   printf("completion time = %f\n", t1-t0);
 }
